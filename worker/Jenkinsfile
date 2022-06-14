@@ -11,14 +11,8 @@ pipeline {
       }
       steps{
         container('jnlp'){
-          sh 'mvn package -DskipTests'
+          sh 'mvn compile; mvn package -DskipTests'
           sh 'ls -lah; ls -lah target'
-          archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-        }
-        container('kaniko'){
-          sh """
-              ls -lah; 
-          """
         }
       }
     }
