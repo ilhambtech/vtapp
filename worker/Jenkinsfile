@@ -38,23 +38,15 @@ pipeline {
           sh 'ls -lah; ls -lah target'
           archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
-      }
-    }
-    stage("push to harbor"){
-      when{
-        changeset "**/worker/**"
-      }
-      steps{
         container('kaniko'){
           sh """
               ls -lah; 
-              cd worker;
-              ls -lah target;
-              /kaniko/executor --context `pwd` --verbosity debug --destination harbor1.btech.id/library/worker:main ; 
           """
         }
       }
     }
+
+    
   }
   post{
     always{
