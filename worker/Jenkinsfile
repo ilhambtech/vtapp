@@ -2,7 +2,7 @@ pipeline {
   agent { label 'docker' } 
 
   stages{
-    stage("package"){
+    stage("build"){
       tools{
         maven 'maven 3.6.1'  
       }
@@ -11,8 +11,36 @@ pipeline {
       }
       steps{
         container('jnlp'){
-          sh 'cd worker; mvn compile; mvn package -DskipTests'
-          sh 'cd worker; ls -lah; ls -lah target'
+          sh 'cd worker; mvn compile;'
+        }
+      }
+    }
+
+    stage("test"){
+      tools{
+        maven 'maven 3.6.1'  
+      }
+      when{
+        changeset "**/worker/**"
+      }
+      steps{
+        container('jnlp'){
+          sh 'cd worker; mvn clean test;'
+        }
+      }
+    }
+
+    stage("packaging"){
+      tools{
+        maven 'maven 3.6.1'  
+      }
+      when{
+        changeset "**/worker/**"
+      }
+      steps{
+        container('jnlp'){
+          sh 'cd worker; mvn package -DskipTests'
+          archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
       }
     }
@@ -23,7 +51,6 @@ pipeline {
       }
       steps{
         container('kaniko'){
-          
           sh 'ls -lah'
           sh 'cd worker; ls -lah; ls -lah target;'
         }
