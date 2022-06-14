@@ -1,5 +1,5 @@
 pipeline {
-  agent { kubernetes 'kubernetes' } 
+  agent { label 'docker' } 
   
   tools{
     maven 'maven 3.6.1'  
@@ -32,11 +32,26 @@ pipeline {
         changeset "**/worker/**"
       }
       steps{
-        echo 'Compiling worker app'
+        echo 'Packaging worker app'
         dir('worker'){
           sh 'mvn package -DskipTests'
           sh 'ls -lah; ls -lah target'
           archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        }
+      }
+    }
+    stage("push to harbor"){
+      when{
+        changeset "**/worker/**"
+      }
+      steps{
+        container('kaniko'){
+          sh """
+              ls -lah; 
+              cd worker;
+              ls -lah target;
+              /kaniko/executor --context `pwd` --verbosity debug --destination harbor1.btech.id/library/worker:main ; 
+          """
         }
       }
     }
