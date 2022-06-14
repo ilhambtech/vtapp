@@ -1,6 +1,6 @@
 Voting App
 =========  
-
+   
 Getting started
 ---------------
 
