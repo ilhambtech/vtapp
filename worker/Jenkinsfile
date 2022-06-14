@@ -23,7 +23,9 @@ pipeline {
       }
       steps{
         container('kaniko'){
+          
           sh 'ls -lah'
+          sh 'cd worker; ls -lah; ls -lah target;'
         }
       }
     }
