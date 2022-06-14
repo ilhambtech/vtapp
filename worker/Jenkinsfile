@@ -12,7 +12,7 @@ pipeline {
       steps{
         container('jnlp'){
           sh 'cd worker; mvn compile; mvn package -DskipTests'
-          sh 'ls -lah; ls -lah target'
+          sh 'cd worker; ls -lah; ls -lah target'
         }
       }
     }
