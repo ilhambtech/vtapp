@@ -1,5 +1,5 @@
 pipeline {
-  agent {kubernetes 'kubernetes'}
+  agent { label 'docker' } 
   
   tools{
     maven 'maven 3.6.1'  
