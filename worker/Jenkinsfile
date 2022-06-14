@@ -11,30 +11,21 @@ pipeline {
       }
       steps{
         echo 'Compiling worker app'
-        dir('worker'){
-          sh 'env; mvn compile'
+        container('jnlp'){
+            sh 'cd worker; env; mvn compile'
         }
       }
     }
-    stage("test"){
-      when{
-        changeset "**/worker/**"
-      }
-      steps{
-        echo 'Compiling worker app'
-        dir('worker'){
-          sh 'mvn clean test'
-        }
-      }
-    }
+
     stage("package"){
       when{
         changeset "**/worker/**"
       }
       steps{
-        dir('worker'){
-          sh 'mvn package -DskipTests'
+        container('jnlp'){
+          sh 'cd worker; mvn package -DskipTests'
           sh 'ls -lah; ls -lah target'
+          archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
         container('kaniko'){
           sh """
