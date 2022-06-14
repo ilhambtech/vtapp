@@ -24,8 +24,7 @@ pipeline {
       steps{
         container('jnlp'){
           sh 'cd worker; mvn package -DskipTests'
-          sh 'ls -lah; ls -lah target'
-          archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+          sh 'ls -lah;'
         }
         container('kaniko'){
           sh """
