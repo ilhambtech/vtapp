@@ -1,30 +1,19 @@
 pipeline {
   agent { label 'docker' } 
-  
-  tools{
-    maven 'maven 3.6.1'  
-  }
-  stages{
-    stage("build"){
-      when{
-        changeset "**/worker/**"
-      }
-      steps{
-        echo 'Compiling worker app'
-        container('jnlp'){
-            sh 'cd worker; env; mvn compile'
-        }
-      }
-    }
 
+  stages{
     stage("package"){
+      tools{
+        maven 'maven 3.6.1'  
+      }
       when{
         changeset "**/worker/**"
       }
       steps{
         container('jnlp'){
-          sh 'cd worker; mvn package -DskipTests'
-          sh 'ls -lah;'
+          sh 'mvn package -DskipTests'
+          sh 'ls -lah; ls -lah target'
+          archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
         container('kaniko'){
           sh """
@@ -34,10 +23,17 @@ pipeline {
       }
     }
 
+    stage("build-image"){
+      when{
+        changeset "**/worker/**"
+      }
+      steps{
+        container('kaniko'){
+          sh 'ls -lah'
+        }
+      }
+    }
+
     
   }
-  post{
-    always{
-      echo 'Building pipeline for worker is completed..'}
-    }
-  }
+}
