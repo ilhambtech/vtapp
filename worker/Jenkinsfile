@@ -55,6 +55,7 @@ pipeline {
                 ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts
                 ssh root@10.81.81.21 ls -lah /root/deploy/worker
                 ssh root@10.81.81.21 "echo ${imagetag}"
+                ssh root@10.81.81.21 "cd /root/deploy/worker; helm upgrade worker . --version ${imagetag} --set image.tag=${imagetag} -n default"
             '''
           }
         }
