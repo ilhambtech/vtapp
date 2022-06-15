@@ -3,9 +3,6 @@ pipeline {
 
   stages{
     stage("deploy-to-prod"){
-      when{
-        changeset "**/worker/**"
-      } 
       steps{
         container('jnlp'){
           sshagent(credentials: ['ssh-private-key-lb']) {
