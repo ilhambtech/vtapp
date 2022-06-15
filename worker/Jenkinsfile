@@ -51,7 +51,6 @@ pipeline {
       }
       steps{
         container('kaniko'){
-          sh 'ls -lah; env;'
           sh 'cd worker; ls -lah; /kaniko/executor --context `pwd` --verbosity debug --destination harbor1.btech.id/library/worker:${GIT_COMMIT:0:7} --destination harbor1.btech.id/library/worker:latest'
         }
       }
@@ -65,11 +64,10 @@ pipeline {
         container('jnlp'){
           sshagent(credentials: ['ssh-private-key-lb']) {
             sh '''
-                echo ${GIT_COMMIT:0:7};
+                env;
                 [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
                 ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts
                 ssh root@10.81.81.21 ls -lah /root/deploy/worker
-                ssh root@10.81.81.21 "cd /root/deploy/worker; helm upgrade worker . --version ${GIT_COMMIT:0:7} --set image.tag=${GIT_COMMIT:0:7} -n default"
             '''
           }
         }
