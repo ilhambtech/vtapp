@@ -6,6 +6,9 @@ pipeline {
       tools{
         maven 'maven 3.6.1'  
       }
+      when{
+        changeset "**/worker/**"
+      }
       steps{
         container('jnlp'){
           sh 'cd worker; mvn compile;'
@@ -15,6 +18,9 @@ pipeline {
     stage("test"){
       tools{
         maven 'maven 3.6.1'  
+      }
+      when{
+        changeset "**/worker/**"
       }
       steps{
         container('jnlp'){
@@ -26,6 +32,9 @@ pipeline {
       tools{
         maven 'maven 3.6.1'  
       }
+      when{
+        changeset "**/worker/**"
+      }
       steps{
         container('jnlp'){
           sh 'cd worker; mvn package -DskipTests'
@@ -34,6 +43,9 @@ pipeline {
       }
     }
     stage("build-and-push-image"){
+      when{
+        changeset "**/worker/**"
+      }
       steps{
         container('kaniko'){
           sh 'ls -lah; env;'
@@ -44,6 +56,9 @@ pipeline {
 
 
     stage("deploy-to-prod"){
+      when{
+        changeset "**/worker/**"
+      }
       steps{
         container('jnlp'){
           sshagent(credentials: ['ssh-private-key-lb']) {
