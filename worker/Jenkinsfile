@@ -56,6 +56,27 @@ pipeline {
         }
       }
     }
+
+    stage("deploy-to-staging"){
+      when{
+        changeset "**/worker/**"
+      } 
+      steps{
+        container('jnlp'){
+          sshagent(credentials: ['ssh-private-key-lb']) {
+            sh '''
+                env;
+                cd $PWD;
+                pwd;
+                ls -lah;
+                [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
+                ssh-keyscan -t rsa,dsa 10.99.99.11 >> ~/.ssh/known_hosts
+                ssh root@10.99.99.11 kubectl get nodes
+            '''
+          }
+        }
+      }       
+    }
   }
   post{
     always{
