@@ -4,20 +4,57 @@ pipeline {
     imagetag = GIT_COMMIT.take(7)
   }
   stages{
+    stage("build"){
+      tools{
+        maven 'maven 3.6.1'  
+      }
+      steps{
+        container('jnlp'){
+          sh 'cd worker; mvn compile;'
+        }
+      }
+    }
+    stage("test"){
+      tools{
+        maven 'maven 3.6.1'  
+      }
+      steps{
+        container('jnlp'){
+          sh 'cd worker; mvn clean test;'
+        }
+      }
+    }
+    stage("packaging"){
+      tools{
+        maven 'maven 3.6.1'  
+      }
+      steps{
+        container('jnlp'){
+          sh 'cd worker; mvn package -DskipTests'
+          archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        }
+      }
+    }
+    stage("build-and-push-image"){
+      steps{
+        container('kaniko'){
+          sh 'ls -lah; env;'
+          sh 'cd worker; ls -lah; /kaniko/executor --context `pwd` --verbosity debug --destination harbor1.btech.id/library/worker:${imagetag}'
+        }
+      }
+    }
 
-    stage("deploy-to-staging"){
-      when{
-        changeset "**/worker/**"
-      } 
+
+    stage("deploy-to-prod"){
       steps{
         container('jnlp'){
           sshagent(credentials: ['ssh-private-key-lb']) {
             sh '''
-                env;
                 echo $imagetag;
-                [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh;
-                ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts;
-                ssh root@10.81.81.21 ls -lah /root/deploy/worker;
+                [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
+                ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts
+                ssh root@10.81.81.21 ls -lah /root/deploy/worker
+                ssh root@10.81.81.21 "echo ${imagetag}"
             '''
           }
         }
@@ -30,6 +67,3 @@ pipeline {
     }
   }
 }
-
-
-
