@@ -53,7 +53,7 @@ pipeline {
                 pwd;
                 ls -lah;
                 [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                ssh-keyscan -t rsa,dsa 10.99.99.21 >> ~/.ssh/known_hosts
+                ssh-keyscan -t rsa,dsa 10.99.99.11 >> ~/.ssh/known_hosts
                 ssh root@10.99.99.11 ls -lah /root/deploy/pod99/worker
                 ssh root@10.99.99.11 "cd /root/deploy/pod99/worker; helm upgrade  worker . --version ${ref##*/} --set image.tag=${ref##*/} -n pod99"
             '''
