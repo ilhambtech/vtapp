@@ -68,7 +68,6 @@ pipeline {
                 env;
                 cd $PWD;
                 pwd;
-                kubectl;
                 ls -lah;
                 [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
                 ssh-keyscan -t rsa,dsa 10.99.99.11 >> ~/.ssh/known_hosts
