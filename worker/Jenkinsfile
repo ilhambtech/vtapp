@@ -65,9 +65,10 @@ pipeline {
           sshagent(credentials: ['ssh-private-key-lb']) {
             sh '''
                 env;
-                [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts
-                ssh root@10.81.81.21 ls -lah /root/deploy/worker
+                echo ${GIT_COMMIT:0:7};
+                [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh;
+                ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts;
+                ssh root@10.81.81.21 ls -lah /root/deploy/worker;
             '''
           }
         }
