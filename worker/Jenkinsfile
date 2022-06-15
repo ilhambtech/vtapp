@@ -45,7 +45,7 @@ pipeline {
       }
     }
 
-    stage("build-and-push=image"){
+    stage("build-and-push-image"){
       when{
         changeset "**/worker/**"
       }
@@ -65,13 +65,11 @@ pipeline {
         container('jnlp'){
           sshagent(credentials: ['ssh-private-key-lb']) {
             sh '''
-                env;
-                cd $PWD;
-                pwd;
-                ls -lah;
+                echo ${ref##*/};
                 [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                ssh-keyscan -t rsa,dsa 10.99.99.11 >> ~/.ssh/known_hosts
-                ssh root@10.99.99.11 kubectl get nodes
+                ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts
+                ssh root@10.81.81.21 ls -lah /root/deploy/worker
+                ssh root@10.81.81.21 "cd /root/deploy/worker; helm upgrade worker . --version ${GIT_COMMIT:0:7} --set image.tag=${GIT_COMMIT:0:7} -n default"
             '''
           }
         }
