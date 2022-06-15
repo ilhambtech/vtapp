@@ -1,6 +1,8 @@
 pipeline {
   agent { label 'docker' } 
-
+  environment {
+    imagetag = "${GIT_COMMIT:0:7}"
+  }
   stages{
 
     stage("deploy-to-staging"){
@@ -12,7 +14,7 @@ pipeline {
           sshagent(credentials: ['ssh-private-key-lb']) {
             sh '''
                 env;
-                echo "${GIT_COMMIT:0:7}";
+                echo "${env.imagetag}";
                 [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh;
                 ssh-keyscan -t rsa,dsa 10.81.81.21 >> ~/.ssh/known_hosts;
                 ssh root@10.81.81.21 ls -lah /root/deploy/worker;
